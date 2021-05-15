@@ -101,5 +101,25 @@ def find_single_byte_xor(filename):
 
     return high_score, plaintext, ciphertext, line_number, key
 
-print(find_single_byte_xor("4.txt"))
-    
+## Challenge 5 ------------------------------------------------------------------------------------------------------------##
+def repeating_key_xor(plaintext, key):
+
+    bytes_text = bytes(plaintext, "utf-8")
+    bytes_key = bytes(key, "utf-8")
+    ciphertext = b''
+    current_key_index = 0
+    current_key = bytes_key[current_key_index]
+
+    for letter in bytes_text:
+        ciphertext += bytes([letter^current_key])
+        #Update the current key to be the next letter in the key
+        current_key_index = (current_key_index+1)%len(bytes_key)
+        current_key = bytes_key[current_key_index]
+
+    #We want the output to be in hex according to cryptopals so let's convert it
+    return ciphertext.hex()
+
+plaintext = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"
+key = "ICE"
+
+print(repeating_key_xor(plaintext, key))
