@@ -1,6 +1,6 @@
 import base64
 
-## CONSTANTS ##
+## CONSTANTS --------------------------------------------------------------------------------------------------------------##
 letter_frequencies = {
     'a': .08167, 'b': .01492, 'c': .02782, 'd': .04253,
     'e': .12702, 'f': .02228, 'g': .02015, 'h': .06094,
@@ -11,12 +11,14 @@ letter_frequencies = {
     'y': .01974, 'z': .00074, ' ': .13000
 }
 
+## Challenge 1 ------------------------------------------------------------------------------------------------------------##
 def hex_to_base64(hex_string):
     #Decode hex string to get raw bytes
     byte_string = bytes.fromhex(hex_string)
     #From the byte string we can convert to base64
     return base64.b64encode(byte_string)
 
+## Challenge 2 ------------------------------------------------------------------------------------------------------------##
 def fixed_xor(buffer1, buffer2):
     #Convert both buffers to bytes
     buf1_bytes = bytes.fromhex(buffer1)
@@ -30,6 +32,7 @@ def fixed_xor(buffer1, buffer2):
 
     return output.hex()
 
+## Challenge 3 ------------------------------------------------------------------------------------------------------------##
 def score_plaintext(plaintext):
     score = 0
     for letter in plaintext.lower():
@@ -68,5 +71,35 @@ def single_byte_xor(hex_string):
 
     return high_score, likely_message, key
 
-print(single_byte_xor("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"))
+## Challenge 4 ------------------------------------------------------------------------------------------------------------##
+def read_file(filename):
+    #Open file in readmode
+    f = open(filename, "r")
+    #Return file data as a list of strings
+    return f.readlines()
+
+def find_single_byte_xor(filename):
+    #Get data from the file
+    file_data = read_file(filename)
+
+    #Keep track of the line that attracts the highest score, along with the key, ciphertext, and line_number
+    high_score = 0
+    plaintext = ""
+    ciphertext = ""
+    line_number = 0
+    key = ""
+
+    #Iterate over all lines, computing their most likely number and score
+    for i in range(len(file_data)):
+        score, message, k = single_byte_xor(file_data[i])
+        if score > high_score:
+            high_score = score
+            plaintext = message
+            ciphertext = file_data[i]
+            line_number = i
+            key = k
+
+    return high_score, plaintext, ciphertext, line_number, key
+
+print(find_single_byte_xor("4.txt"))
     
