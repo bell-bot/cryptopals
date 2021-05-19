@@ -1,5 +1,6 @@
 import base64
-import math
+from Crypto.Cipher import AES
+import ast
 
 ## IMPORTANT ################################################################################################################
 ## All the functions, except for the challenge ones, operate on, and return, bytes.##########################################
@@ -232,3 +233,66 @@ def breaking_repeating_key_xor(byte_data):
             likely_key += chr(key)
         keys.append(likely_key)
     return keys
+
+## Challenge 7 ------------------------------------------------------------------------------------------------------------##
+def challenge_7():
+    # Define key and data to encrypt
+    key = b"YELLOW SUBMARINE"
+    file_data = read_file_to_string("7.txt")
+
+    #Convert file data to bytes
+    byte_data = base64.b64decode(file_data)
+    
+    decipher = AES.new(key, AES.MODE_ECB)
+    print("Deciphered text:")
+    print(decipher.decrypt(byte_data).decode("utf-8"))
+
+## Challenge 8 ------------------------------------------------------------------------------------------------------------##
+def challenge_8():
+    file_data = read_file_to_array("8.txt")
+
+    #Convert the file data to bytes
+    file_data = [bytes.fromhex(data) for data in file_data]
+
+    max_reps = 0
+    line = 0
+    ciphertext = ""
+
+    # Iterate through all ciphertexts, counting the repetitions. The ciphertext with the most repetitions is most likely encrypted with ECB
+    for i in range(len(file_data)):
+        reps = find_repeating_blocks(file_data[i])
+        if reps > max_reps:
+            max_reps = reps
+            line = i
+            ciphertext = file_data[i]
+
+    print(max_reps, line, ciphertext)
+
+def find_repeating_blocks(byte_data):
+    # Separate the data into blocks of 16 bytes
+    blocks = [byte_data[i*16:(i+1)*16] for i in range(int(len(byte_data)/16))]
+
+    repeating_blocks = []
+    number_of_repetitions = 0
+    #Iterate through all blocks, counting repetitions
+    for block in blocks:
+        #Keep track of if this block as occurred before
+        found = False
+        for b in repeating_blocks:
+            if str(b["block"]) == str(block):
+                b["reps"] += 1
+                # We have found the block so set found to True
+                found = True
+                # Also increase the total number of repetitions found
+                number_of_repetitions += 1
+        
+        #If we have not found the block, insert it into repeatint_blocks, setting "reps" to 1
+        if not(found):
+            data = {
+                "block" : block,
+                "reps" : 1
+            }
+
+            repeating_blocks.append(data)
+
+    return number_of_repetitions
