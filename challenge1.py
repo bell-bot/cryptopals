@@ -1,6 +1,5 @@
 import base64
 from Crypto.Cipher import AES
-import ast
 
 ## IMPORTANT ################################################################################################################
 ## All the functions, except for the challenge ones, operate on, and return, bytes.##########################################
