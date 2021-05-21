@@ -1,8 +1,8 @@
 ## Imports
 import math
 
-## Challenge 1 ---------------------------------------------------------------------------------------------------
-def challenge_1():
+## Challenge 9 ---------------------------------------------------------------------------------------------------
+def challenge_9():
     plaintext = "YELLOW SUBMARINE"
     ciphertext = pkcs_7(5, plaintext)
     print(ciphertext)
@@ -19,4 +19,4 @@ def pkcs_7(block_size, plaintext):
     print(padding_byte)
     return plaintext + padding_byte*num_of_padding
 
-challenge_1()
+challenge_9()
