@@ -1,8 +1,9 @@
 ## Imports
 import math
-from set1 import read_file_to_string
+from set1 import read_file_to_string, find_repeating_blocks
 from Crypto.Cipher import AES
 import base64
+from random import randint
 
 ## Challenge 9 ---------------------------------------------------------------------------------------------------
 def challenge_9():
@@ -107,5 +108,66 @@ def ecb_decrypt(ciphertext, key):
 def xor_bytes(string_1,string_2):
     return bytes([b1 ^ b2 for b1, b2 in zip(string_1, string_2)])
 
+## Challenge 10 --------------------------------------------------------------------------------------------------
+def challenge_11():
+    plaintext = bytes([1]*160)
+    ciphertext = encryption_oracle(plaintext)
+    print(ciphertext)
+    detect_encryption_mode(ciphertext)
+
+def generate_random_key():
+    # Generate a random AES key of 16 random bytes
+    key = generate_random_bytes(16)
+
+    return key
+
+def generate_random_bytes(num_of_bytes):
+    # Generate a random number of bytes
+    return bytes([randint(0,255) for i in range(num_of_bytes)])
+
+def encryption_oracle(byte_input):
+    
+    # Generate a random key
+    key = generate_random_key()
+
+    # Generate 5-10 random bytes to append and prepend to the plaintext
+    prefix_len = randint(5,10)
+    prefix = generate_random_bytes(prefix_len)
+
+    suffix_len = randint(5,10)
+    suffix = generate_random_bytes(suffix_len)
+
+    # Pre-/append prefix and suffix to plaintext
+    byte_input = prefix + byte_input + suffix
+
+    # Pad the input if necessary
+    byte_input = pkcs_7(AES.block_size, byte_input)
+
+    # Decide if we use ecb or cbc
+    # ecb = 0, cbc = 1
+    encryption_mode = randint(0,1)
+
+    if encryption_mode == 0:
+        print("Encrypting under ECB")
+        return ecb_encrypt(byte_input, key)
+    else: 
+        print("Encrypting under CBC")
+        # Generate a random iv
+        iv = generate_random_bytes(16)
+        return cbc_mode_encrypt(byte_input, iv, key)
+
+def detect_encryption_mode(ciphertext):
+
+    # If the text has repetitions, we assume that it is in ecb mode
+    # Otherwise assume it is in cbc mode
+    # This is pretty stupid and only works for long texts
+    repetitions = find_repeating_blocks(ciphertext)
+    print(repetitions)
+    if repetitions > 0:
+        print("Detected ECB mode.")
+    else:
+        print("Detected CBC mode.")
+
+
 if __name__ == '__main__':
-    challenge_10()
+    challenge_11()
